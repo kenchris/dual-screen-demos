@@ -1,5 +1,7 @@
 <html>
 
+<script type=module src="virtual-keyboard.js"></script>
+
 <style>
   :root {
     --env-fold-width: 20px;
@@ -9,6 +11,7 @@
 
   body {
     margin: 0;
+    overflow: hidden;
   }
 
   #viewport {
@@ -44,43 +47,25 @@
     overflow: auto;
   }
 
-  #keyboard-right {
-    object-fit: contain;
-    background-color: gray;
+  #keyboard-right, #keyboard-left {
     width: 100%;
+    height: 400px;
     overflow: hidden;
+  }
+
+  #keyboard-right {
     flex: 0 0 var(--env-right-side-keyboard-bottom);
   }
 
   #keyboard-left {
-    object-fit: contain;
-    background-color: gray;
-    width: 100%;
-    overflow: hidden;
     flex: 0 0 var(--env-left-side-keyboard-bottom);
-  }
-
-  #vkb {
-    background-color: black;
-    height: 400px;
-    width: calc((100vw - var(--env-fold-width)) / 2);
-    position: absolute;
-    bottom: 0px;
-    --left: 0px;
-    --right: calc(50vw + var(--env-fold-width) / 2);
-    left: var(--right);
-    opacity: 0;
-    display: none;
   }
 
 </style>
 
 <body>
-  <div id="vkb">
-    <img src="vkb.png" id="keyboard-left"></img>
-  </div>
+  <virtual-keyboard></virtual-keyboard>
 
-  </div>
   <div id="viewport">
     <div id="left">
       <div id="content">
@@ -88,6 +73,20 @@
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed at mattis nunc, ut volutpat sapien. Pellentesque in pharetra ex, eget luctus libero. Sed convallis, nisi eget tristique sollicitudin, neque magna accumsan elit, nec dapibus leo metus in mi. Aliquam mattis, ipsum ac tempus vestibulum, quam justo placerat massa, ac dictum felis eros nec sapien. Vivamus ullamcorper erat ligula, porta feugiat lectus laoreet sed. Sed a diam pulvinar, pulvinar tortor sed, scelerisque elit. Integer dapibus ipsum eget urna fringilla porttitor. Nunc aliquet pretium risus, nec porta metus pellentesque non. Donec nec pellentesque eros. In gravida at nulla quis luctus. Quisque hendrerit orci nec nunc semper viverra.
         </p>
         <input type="text"></input> 
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed at mattis nunc, ut volutpat sapien. Pellentesque in pharetra ex, eget luctus libero. Sed convallis, nisi eget tristique sollicitudin, neque magna accumsan elit, nec dapibus leo metus in mi. Aliquam mattis, ipsum ac tempus vestibulum, quam justo placerat massa, ac dictum felis eros nec sapien. Vivamus ullamcorper erat ligula, porta feugiat lectus laoreet sed. Sed a diam pulvinar, pulvinar tortor sed, scelerisque elit. Integer dapibus ipsum eget urna fringilla porttitor. Nunc aliquet pretium risus, nec porta metus pellentesque non. Donec nec pellentesque eros. In gravida at nulla quis luctus. Quisque hendrerit orci nec nunc semper viverra.
+        </p>
+        <input type="text"></input> 
+        <p>
+          In mattis, urna sed finibus mattis, nibh nisi sagittis quam, vehicula iaculis urna elit at lacus. Vestibulum tincidunt magna sed sagittis dapibus. Nunc ac tortor neque. Sed ante magna, aliquet cursus metus vitae, faucibus facilisis lorem. Nullam a malesuada mi. Donec luctus porta nisl, et tempus enim. Praesent cursus pellentesque velit eget fermentum. In condimentum maximus est, nec molestie ante blandit non. Nulla mollis tortor vel facilisis ullamcorper.
+        </p>
+        <p>
+          Maecenas scelerisque nunc sit amet sagittis porta. Integer tortor velit, pellentesque id massa id, consectetur vehicula mauris. Vestibulum vel orci ex. Curabitur eget justo orci. Nunc erat nisl, eleifend eu justo eget, imperdiet facilisis erat. Duis fringilla a magna eget suscipit. Aliquam eu ultricies nibh, a bibendum metus. Proin iaculis augue orci. Ut erat risus, gravida vel faucibus ac, porttitor quis nisl. Nullam consequat justo vitae libero vulputate, nec laoreet mauris fermentum. Etiam consequat neque urna, id congue dolor ornare sit amet. Pellentesque euismod quis nisi a molestie. Fusce eu est vel velit cursus fringilla. Pellentesque tristique tempor sapien.
+        </p>
+        <input type="text"></input> 
+        <p>
+          Sed porttitor semper nulla, a elementum nisl pulvinar et. Nulla facilisi. Mauris iaculis neque tortor, id mollis lorem commodo eu. Phasellus pharetra et neque sit amet tempus. Aenean viverra ut felis accumsan venenatis. Integer rutrum dui quis erat cursus vestibulum. Nullam vel consequat arcu. Fusce vel erat ac ex tempor maximus. Curabitur urna dui, maximus quis posuere condimentum, porta et nibh. Suspendisse quis scelerisque eros. Nullam sed lorem vel mi vestibulum pulvinar nec eu tellus. Pellentesque facilisis, massa et eleifend auctor, lorem sem semper elit, lacinia mattis ligula odio a turpis. Duis ipsum diam, mattis id iaculis id, viverra et tortor.
+        </p>
       </div>
       <div id="keyboard-left"></div>
     </div>
@@ -129,48 +128,22 @@
 </body>
 <script>
   const inputs = document.querySelectorAll('input');
-  const keyboardHeight = 400;
-
-  const vkb = document.querySelector("#vkb");
-
-  let anim;
+  const vkb = document.querySelector("virtual-keyboard");
 
   inputs.forEach(input => {
+    input.addEventListener("blur", () => vkb.dismiss());
     input.addEventListener("focus", ev => {
-      if (anim) {
-        anim.cancel();
-      }
-
-      let prop;
       const rect = ev.target.getBoundingClientRect();
       const pos = rect.x + rect.width / 2;
       if (pos <= window.visualViewport.width / 2) {
-        prop = '--env-left-side-keyboard-bottom';
-        vkb.style.left = 'var(--left)';
+        vkb.open({ side: "left" });
       } else {
-        prop = '--env-right-side-keyboard-bottom';
-        vkb.style.left = 'var(--right)';
+        vkb.open({ side: "right" });
       }
 
-      vkb.style.opacity = 1;
-      vkb.style.display = "block";
-
-      const style = document.documentElement.style;
-      style.setProperty(prop, `${keyboardHeight}px`);
-    
       window.requestAnimationFrame(() => {
         ev.target.scrollIntoView({behavior: "smooth", block: "center"});
       });
-    });
-      
-    input.addEventListener("blur", () => {
-      anim = vkb.animate([ {opacity: 1}, {opacity: 0}], { fill: 'forwards', duration: 500});
-      anim.onfinish = () => { vkb.style.display = 'none' };
-
-      console.log("blur");
-      const style = document.documentElement.style;
-      style.setProperty('--env-left-side-keyboard-bottom', "0px");
-      style.setProperty('--env-right-side-keyboard-bottom', "0px");
     });
   });
 </script>
